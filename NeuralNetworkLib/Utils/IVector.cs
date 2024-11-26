@@ -13,8 +13,9 @@
             return (float)Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
         }
 
-        public static MyVector operator *(IVector vector, float scalar)
+        public static MyVector operator *(IVector? vector, float scalar)
         {
+            if (vector == null) return new MyVector();
             return new MyVector(vector.X * scalar, vector.Y * scalar);
         }
 
@@ -32,7 +33,7 @@
         {
             if (a == null || b == null)
             {
-                throw new ArgumentNullException(a == null ? nameof(a) : nameof(b), "IVector instance is null");
+                return MyVector.zero();
             }
 
             return new MyVector(a.X - b.X, a.Y - b.Y);
@@ -42,7 +43,7 @@
         {
             if (a == null)
             {
-                throw new ArgumentNullException(nameof(a), "IVector instance is null");
+                return MyVector.zero();
             }
 
             return new MyVector(a.X / integer, a.Y / integer);
@@ -52,7 +53,7 @@
         {
             if (a == null || b == null)
             {
-                throw new ArgumentNullException(a == null ? nameof(a) : nameof(b), "IVector instance is null");
+                return false;
             }
             
             return (a.X < b.X && a.Y < b.Y);
@@ -62,17 +63,13 @@
         {
             if (a == null || b == null)
             {
-                throw new ArgumentNullException(a == null ? nameof(a) : nameof(b), "IVector instance is null");
+                return false;
             }
             return (a.X > b.X && a.Y > b.Y);
         }
 
         static float Dot(IVector a, IVector b)
         {
-            if (a == null || b == null)
-            {
-                throw new ArgumentNullException(a == null ? nameof(a) : nameof(b), "IVector instance is null");
-            }
             if (a == null || b == null) return 0;
             return a.X * b.X + a.Y * b.Y;
         }
@@ -110,7 +107,7 @@
         public IVector Normalized()
         {
             float magnitude = (float)Math.Sqrt(X * X + Y * Y);
-            return new MyVector(X / magnitude, Y / magnitude);
+            return magnitude == 0 ? new MyVector(0, 0) : new MyVector(X / magnitude, Y / magnitude);
         }
 
         public float Distance(IVector other)
@@ -138,8 +135,9 @@
             return new MyVector(a.X / scalar, a.Y / scalar);
         }
 
-        public static MyVector operator *(MyVector a, float scalar)
+        public static MyVector operator *(MyVector? a, float scalar)
         {
+            if (a == null) return zero();
             return new MyVector(a.X * scalar, a.Y * scalar);
         }
 

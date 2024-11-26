@@ -30,10 +30,17 @@ namespace NeuralNetworkLib.Agents.States
             behaviours.SetTransitionBehaviour(() =>
             {
                 if (currentNode == null || currentNode.Food <= 0 || foodTarget != currentNode.NodeType)
+                {
                     OnFlag?.Invoke(Flags.OnSearchFood);
+                    return;
+                }
 
-                if (outputBrain1 != null && outputBrain1[0] > 0.5f && currentNode != null && currentNode.NodeType == foodTarget)
+                if (outputBrain1 != null && outputBrain1[0] > 0.5f && currentNode != null &&
+                    currentNode.NodeType == foodTarget)
+                {
                     OnFlag?.Invoke(Flags.OnEat);
+                    return;
+                }
 
                 SpecialAction(outputBrain2);
             });
@@ -80,6 +87,7 @@ namespace NeuralNetworkLib.Agents.States
                 {
                     return;
                 }
+
                 distanceToFood = new MyVector(foodNode.GetCoordinate().X - currentPos.X,
                     foodNode.GetCoordinate().Y - currentPos.Y);
 
@@ -92,10 +100,17 @@ namespace NeuralNetworkLib.Agents.States
             behaviours.SetTransitionBehaviour(() =>
             {
                 if (foodNode == null || foodNode.Food <= 0 || distanceToFood.Magnitude() > maxDistance.Magnitude())
+                {
                     OnFlag?.Invoke(Flags.OnSearchFood);
+                    return;
+                }
 
                 if (outputBrain1 != null && outputBrain1[0] > 0.5f && currentPos != null &&
-                    distanceToFood.Magnitude() <= maxDistance.Magnitude()) OnFlag?.Invoke(Flags.OnEat);
+                    distanceToFood.Magnitude() <= maxDistance.Magnitude())
+                {
+                    OnFlag?.Invoke(Flags.OnEat);
+                    return;
+                }
             });
 
             return behaviours;
@@ -106,15 +121,76 @@ namespace NeuralNetworkLib.Agents.States
     {
         protected override void SpecialAction(float[] outputs)
         {
-            if (outputs != null && outputs[0] > 0.5f) OnFlag?.Invoke(Flags.OnEscape);
+            if (outputs != null && outputs[0] > 0.5f)
+            {
+                OnFlag?.Invoke(Flags.OnEscape);
+                return;
+            }
         }
     }
 
-    public class SimEatCarnState : SimEatState
+    public class SimEatCarnState : State
     {
-        protected override void SpecialAction(float[] outputs)
+        public override BehaviourActions GetTickBehaviour(params object[] parameters)
         {
-            if (outputs != null && outputs[0] > 0.5f) OnFlag?.Invoke(Flags.OnAttack);
+            if (parameters == null || parameters.Length < 5)
+            {
+                throw new ArgumentException("Invalid parameters for GetTickBehaviour");
+            }
+
+            BehaviourActions behaviours = new BehaviourActions();
+            SimNode<IVector> currentNode = parameters[0] as SimNode<IVector>;
+            SimNodeType foodTarget = (SimNodeType)parameters[1];
+            Action onEat = parameters[2] as Action;
+            float[] outputBrain1 = parameters[3] as float[];
+            float[] outputBrain2 = parameters[4] as float[];
+
+            behaviours.AddMultiThreadableBehaviours(0, () =>
+            {
+                if (foodTarget == null || currentNode == null || onEat == null) return;
+                if (currentNode.Food <= 0 || foodTarget != currentNode.NodeType) return;
+
+                onEat?.Invoke();
+            });
+
+            behaviours.SetTransitionBehaviour(() =>
+            {
+                if (currentNode == null || currentNode.Food <= 0 || foodTarget != currentNode.NodeType)
+                {
+                    OnFlag?.Invoke(Flags.OnSearchFood);
+                    return;
+                }
+
+                if (outputBrain1 != null && outputBrain1[0] > 0.5f && currentNode != null &&
+                    currentNode.NodeType == foodTarget)
+                {
+                    OnFlag?.Invoke(Flags.OnEat);
+                    return;
+                }
+
+                SpecialAction(outputBrain2);
+            });
+
+            return behaviours;
+        }
+
+        protected void SpecialAction(float[] outputs)
+        {
+            if (outputs != null && outputs[0] > 0.5f)
+            {
+                OnFlag?.Invoke(Flags.OnAttack);
+                return;
+            }
+        }
+
+        public override BehaviourActions GetOnEnterBehaviour(params object[] parameters)
+        {
+            return default;
+        }
+
+        public override BehaviourActions GetOnExitBehaviour(params object[] parameters)
+        {
+            return default;
         }
     }
 }
