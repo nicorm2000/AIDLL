@@ -26,6 +26,79 @@ public class DataContainer
     public static Dictionary<int, BrainType> carnBrainTypes = new  Dictionary<int, BrainType>();
 
     /// <summary>
+    /// Initializes brain type mappings and input counts for various simulation agent types.
+    /// </summary>
+    /// <remarks>
+    /// This method sets up dictionaries to map agent types (e.g., Herbivore, Scavenger, Carnivore) 
+    /// to their respective brain types and neural network configurations.
+    /// </remarks>
+    public static void Init()
+    {
+        herbBrainTypes = new Dictionary<int, BrainType>();
+        scavBrainTypes = new Dictionary<int, BrainType>();
+        carnBrainTypes = new Dictionary<int, BrainType>();
+        herbBrainTypes[0] = BrainType.Eat;
+        herbBrainTypes[1] = BrainType.Movement;
+        herbBrainTypes[2] = BrainType.Escape;
+        scavBrainTypes[0] = BrainType.Eat;
+        scavBrainTypes[1] = BrainType.ScavengerMovement;
+        scavBrainTypes[2] = BrainType.Flocking;
+        carnBrainTypes[0] = BrainType.Eat;
+        carnBrainTypes[1] = BrainType.Movement;
+        carnBrainTypes[2] = BrainType.Attack;
+        inputCounts = new[]
+        {
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Carnivore, brainType = BrainType.Eat, inputCount = 4, outputCount = 1,
+                hiddenLayersInputs = new[] { 1 }
+            },
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Carnivore, brainType = BrainType.Movement, inputCount = 7,
+                outputCount = 3, hiddenLayersInputs = new[] { 3 }
+            },
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Carnivore, brainType = BrainType.Attack, inputCount = 4,
+                outputCount = 1, hiddenLayersInputs = new[] { 1 }
+            },
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Herbivore, brainType = BrainType.Eat, inputCount = 4, outputCount = 1,
+                hiddenLayersInputs = new[] { 1 }
+            },
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Herbivore, brainType = BrainType.Movement, inputCount = 8,
+                outputCount = 2, hiddenLayersInputs = new[] { 3 }
+            },
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Herbivore, brainType = BrainType.Escape, inputCount = 4, outputCount = 1,
+                hiddenLayersInputs = new[] { 1 }
+            },
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Scavenger, brainType = BrainType.Eat, inputCount = 4, outputCount = 1,
+                hiddenLayersInputs = new[] { 1 }
+            },
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Scavenger, brainType = BrainType.ScavengerMovement, inputCount = 7,
+                outputCount = 2, hiddenLayersInputs = new[] { 3 }
+            },
+            new NeuronInputCount
+            {
+                agentType = SimAgentTypes.Scavenger, brainType = BrainType.Flocking, inputCount = 16,
+                outputCount = 4,
+                hiddenLayersInputs = new[] { 12, 8, 6, 4 }
+            },
+        };
+        InputCountCache = inputCounts.ToDictionary(input => (input.brainType, input.agentType));
+    }
+
+    /// <summary>
     /// Converts a coordinate to a node in the graph, based on the X and Y values of the coordinate.
     /// Returns null if the coordinate is out of bounds.
     /// </summary>
