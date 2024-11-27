@@ -12,7 +12,7 @@ namespace NeuralNetworkLib.Agents.SimAgents
         public Boid<IVector, ITransform<IVector>> boid = new Boid<IVector, ITransform<IVector>>();
         private IVector targetPosition = new MyVector();
         public IVector target;
-
+    
         public override TTransform Transform
         {
             get => transform;
@@ -341,7 +341,7 @@ namespace NeuralNetworkLib.Agents.SimAgents
 
         protected override object[] EatTickParameters()
         {
-            object[] objects = new object[4];
+            object[] objects = new object[5];
             objects[0] = Transform.position;
 
             if (targetPosition.X >= 0 && targetPosition.X < DataContainer.graph.NodesType.GetLength(0) &&
@@ -355,15 +355,16 @@ namespace NeuralNetworkLib.Agents.SimAgents
             }
 
             objects[2] = OnEat;
+            objects[3] = OnMove;
 
             int brainKey = GetBrainTypeKeyByValue(BrainType.Eat);
             if (brainKey >= 0 && brainKey < output.Length)
             {
-                objects[3] = output[brainKey];
+                objects[4] = output[brainKey];
             }
             else
             {
-                objects[3] = null;
+                objects[4] = null;
             }
 
             return objects;
