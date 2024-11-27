@@ -16,6 +16,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
 
         private SimAgent<IVector, ITransform<IVector>> target;
 
+        /// <summary>
+        /// Initializes the carnivore's state by setting up basic properties such as food target, movement speed, 
+        /// and attack status. It also registers the attack event.
+        /// </summary>
         public override void Init()
         {
             base.Init();
@@ -29,12 +33,18 @@ namespace NeuralNetworkLib.Agents.SimAgents
             OnAttack += Attack;
         }
 
+        /// <summary>
+        /// Uninitializes the carnivore's state by unregistering the attack event.
+        /// </summary>
         public override void Uninit()
         {
             base.Uninit();
             OnAttack -= Attack;
         }
 
+        /// <summary>
+        /// Resets the carnivore's state, including resetting the attack and kill flags, as well as damage dealt.
+        /// </summary>
         public override void Reset()
         {
             base.Reset();
@@ -43,6 +53,11 @@ namespace NeuralNetworkLib.Agents.SimAgents
             DamageDealt = 0;
         }
 
+        /// <summary>
+        /// Updates the carnivore's inputs, including target searching, food searching, movement inputs, 
+        /// and any additional inputs. It calls <see cref="FindFoodInputs"/> and <see cref="MovementInputs"/> 
+        /// for specific logic.
+        /// </summary>
         public override void UpdateInputs()
         {
             target = DataContainer.GetNearestEntity(SimAgentTypes.Herbivore, Transform.position);
@@ -51,6 +66,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
             ExtraInputs();
         }
 
+        /// <summary>
+        /// Defines the extra inputs for the carnivore's brain, including coordinates for the current position, target, 
+        /// and food target. If no target is found, it sets placeholders for target coordinates.
+        /// </summary>
         protected override void ExtraInputs()
         {
             int brain = GetBrainTypeKeyByValue(BrainType.Attack);
@@ -71,6 +90,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
             input[brain][3] = target.CurrentNode.GetCoordinate().Y;
         }
 
+        /// <summary>
+        /// Defines movement-related inputs, including coordinates of the current node, target, and food node. 
+        /// The inputs are set accordingly, with placeholders if targets are not found.
+        /// </summary>
         protected override void MovementInputs()
         {
             int brain = GetBrainTypeKeyByValue(BrainType.Movement);
@@ -108,6 +131,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             input[brain][6] = Food;
         }
 
+        /// <summary>
+        /// Adds behaviors related to eating, walking, and attacking to the finite state machine (FSM).
+        /// </summary>
         protected override void ExtraBehaviours()
         {
             Fsm.AddBehaviour<SimEatCarnState>(Behaviours.Eat, EatTickParameters);
@@ -117,6 +143,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
             Fsm.AddBehaviour<SimAttackState>(Behaviours.Attack, AttackTickParameters);
         }
 
+        /// <summary>
+        /// Returns the tick parameters for the attack behavior, including various details such as the current node, 
+        /// food target, movement state, and outputs related to eating and attacking.
+        /// </summary>
         private object[] AttackTickParameters()
         {
             if (output.Length < 3 || output[GetBrainTypeKeyByValue(BrainType.Movement)].Length < 2)
@@ -140,6 +170,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return objects;
         }
 
+        /// <summary>
+        /// Returns the tick parameters for the walking behavior, including the current node, target coordinates, 
+        /// food target, and movement output.
+        /// </summary>
         protected override object[] WalkTickParameters()
         {
             object[] objects =
@@ -150,7 +184,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return objects;
         }
 
-
+        /// <summary>
+        /// Executes the attack logic on the target herbivore, reducing its health and setting flags for attack and kill.
+        /// </summary>
         private void Attack()
         {
             if (target.agentType != SimAgentTypes.Herbivore ||
@@ -165,6 +201,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
             }
         }
 
+        /// <summary>
+        /// Executes the eating logic for the carnivore. It decreases the food count of the current node and increases 
+        /// the carnivore's food amount. If the node's food count reaches zero, the node is changed to carrion.
+        /// </summary>
         protected override void Eat()
         {
             INode<IVector> node = CurrentNode;
@@ -182,16 +222,25 @@ namespace NeuralNetworkLib.Agents.SimAgents
             }
         }
 
+        /// <summary>
+        /// Checks whether two coordinates are approximately equal within a given tolerance.
+        /// </summary>
         private bool Approximatly(IVector coord1, IVector coord2, float tolerance)
         {
             return Math.Abs(coord1.X - coord2.X) <= tolerance && Math.Abs(coord1.Y - coord2.Y) <= tolerance;
         }
 
+        /// <summary>
+        /// Adds the extra behaviors to the FSM by calling <see cref="ExtraBehaviours"/>.
+        /// </summary>
         protected override void FsmBehaviours()
         {
             ExtraBehaviours();
         }
 
+        /// <summary>
+        /// Defines the state transitions for the carnivore's eating behavior, including transitioning to walking or attacking.
+        /// </summary>
         protected override void EatTransitions()
         {
             Fsm.SetTransition(Behaviours.Eat, Flags.OnEat, Behaviours.Eat);
@@ -199,6 +248,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             Fsm.SetTransition(Behaviours.Eat, Flags.OnAttack, Behaviours.Attack);
         }
 
+        /// <summary>
+        /// Defines the state transitions for the carnivore's walking behavior, including transitioning to eating or attacking.
+        /// </summary>
         protected override void WalkTransitions()
         {
             Fsm.SetTransition(Behaviours.Walk, Flags.OnEat, Behaviours.Eat);
@@ -206,6 +258,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             Fsm.SetTransition(Behaviours.Walk, Flags.OnSearchFood, Behaviours.Walk);
         }
 
+        /// <summary>
+        /// Defines additional state transitions for the attack behavior, including transitions to eating or walking states.
+        /// </summary>
         protected override void ExtraTransitions()
         {
             Fsm.SetTransition(Behaviours.Attack, Flags.OnAttack, Behaviours.Attack);

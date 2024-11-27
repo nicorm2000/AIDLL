@@ -12,7 +12,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
         public Boid<IVector, ITransform<IVector>> boid = new Boid<IVector, ITransform<IVector>>();
         private IVector targetPosition = new MyVector();
         public IVector target;
-    
+
+        /// <summary>
+        /// Gets or sets the transform of the object, updating its position and forward direction.
+        /// </summary>
         public override TTransform Transform
         {
             get => transform;
@@ -30,6 +33,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             }
         }
 
+        /// <summary>
+        /// Initializes the object, setting its target position, boid parameters, and food-related properties.
+        /// </summary>
         public override void Init()
         {
             targetPosition = GetTargetPosition();
@@ -50,6 +56,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             CalculateInputs();
         }
 
+        /// <summary>
+        /// Resets the object to its initial state, re-initializing the boid with the relevant inputs.
+        /// </summary>
         public override void Reset()
         {
             base.Reset();
@@ -62,12 +71,18 @@ namespace NeuralNetworkLib.Agents.SimAgents
                 DataContainer.flockingManager.Separation, DataContainer.flockingManager.Direction);
         }
 
+        /// <summary>
+        /// Updates the inputs for the object based on nearby boids and other factors.
+        /// </summary>
         public override void UpdateInputs()
         {
             boid.NearBoids = DataContainer.GetBoidsInsideRadius(boid);
             base.UpdateInputs();
         }
 
+        /// <summary>
+        /// Collects movement input data for the scavenger brain, including target position, food, and nearby entities.
+        /// </summary>
         protected override void MovementInputs()
         {
             int brain = GetBrainTypeKeyByValue(BrainType.ScavengerMovement);
@@ -105,6 +120,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             input[brain][6] = Food;
         }
 
+        /// <summary>
+        /// Collects additional input data related to flocking behavior, including target direction, neighbor positions, and velocities.
+        /// </summary>
         protected override void ExtraInputs()
         {
             int brain = GetBrainTypeKeyByValue(BrainType.Flocking);
@@ -176,7 +194,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
             boid.target = targetPosition;
         }
 
-
+        /// <summary>
+        /// Calculates the average position of nearby boids.
+        /// </summary>
+        /// <returns>The average position of the neighboring boids.</returns>
         private IVector GetAverageNeighborPosition()
         {
             IVector averagePosition = new MyVector(0, 0);
@@ -198,6 +219,10 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return averagePosition;
         }
 
+        /// <summary>
+        /// Calculates the average direction of nearby boids based on their velocities.
+        /// </summary>
+        /// <returns>The average velocity direction of neighboring boids.</returns>
         private IVector GetAverageNeighborDirection()
         {
             if (boid.NearBoids.Count == 0)
@@ -215,21 +240,37 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return avg;
         }
 
+        /// <summary>
+        /// Gets the separation vector for the boid, keeping it away from nearby boids.
+        /// </summary>
+        /// <returns>The separation vector for the boid.</returns>
         private IVector GetSeparationVector()
         {
             return boid.GetSeparation();
         }
 
+        /// <summary>
+        /// Gets the alignment vector for the boid, ensuring it aligns with nearby boids.
+        /// </summary>
+        /// <returns>The alignment vector for the boid.</returns>
         private IVector GetAlignmentVector()
         {
             return boid.GetAlignment();
         }
 
+        /// <summary>
+        /// Gets the cohesion vector for the boid, moving it towards the center of the group.
+        /// </summary>
+        /// <returns>The cohesion vector for the boid.</returns>
         private IVector GetCohesionVector()
         {
             return boid.GetCohesion();
         }
 
+        /// <summary>
+        /// Gets the target position for the scavenger based on available resources or other entities.
+        /// </summary>
+        /// <returns>The target position of the scavenger.</returns>
         private IVector GetTargetPosition()
         {
             target = GetTarget(foodTarget)?.GetCoordinate();
@@ -237,6 +278,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return target == null ? MyVector.NoTarget() : target;
         }
 
+        /// <summary>
+        /// Allows the scavenger to eat food from the environment if it is within reach.
+        /// </summary>
         protected override void Eat()
         {
             if (!DataContainer.graph.IsWithinGraphBorders(targetPosition)) return;
@@ -252,6 +296,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             }
         }
 
+        /// <summary>
+        /// Moves the scavenger based on its brain's movement output, applying forces from nearby boids and the environment.
+        /// </summary>
         protected override void Move()
         {
             int index = GetBrainTypeKeyByValue(BrainType.ScavengerMovement);
@@ -305,11 +352,21 @@ namespace NeuralNetworkLib.Agents.SimAgents
             SetPosition(currentPos);
         }
 
+        /// <summary>
+        /// Sets the position of the agent in the simulation.
+        /// </summary>
+        /// <param name="position">The position to set for the agent, represented as an IVector.</param>
         public override void SetPosition(IVector position)
         {
             Transform = (TTransform)new ITransform<IVector>(position);
         }
 
+        /// <summary>
+        /// Gets the nearest target node for the agent, based on the node type.
+        /// If no matching node is found, it searches for the nearest corpse or carnivore.
+        /// </summary>
+        /// <param name="nodeType">The type of node to search for (default is empty).</param>
+        /// <returns>The nearest node of the specified type, or the nearest entity if no node is found.</returns>
         public override INode<IVector> GetTarget(SimNodeType nodeType = SimNodeType.Empty)
         {
             INode<IVector> target = DataContainer.GetNearestNode(nodeType, Transform.position) ??
@@ -328,17 +385,29 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return target;
         }
 
+        /// <summary>
+        /// Defines the FSM (Finite State Machine) behaviors for the agent.
+        /// Adds the walking behavior and calls any additional custom behaviors.
+        /// </summary>
         protected override void FsmBehaviours()
         {
             Fsm.AddBehaviour<SimWalkScavState>(Behaviours.Walk, WalkTickParameters);
             ExtraBehaviours();
         }
 
+        /// <summary>
+        /// Adds extra FSM behaviors specific to the agent, such as eating behavior.
+        /// </summary>
         protected override void ExtraBehaviours()
         {
             Fsm.AddBehaviour<SimEatScavState>(Behaviours.Eat, EatTickParameters);
         }
 
+        // <summary>
+        /// Returns the parameters required for the eating behavior FSM state.
+        /// Includes the agent's position, target position, and brain output for the Eat state.
+        /// </summary>
+        /// <returns>An array of objects containing the parameters for the Eat state.</returns>
         protected override object[] EatTickParameters()
         {
             object[] objects = new object[5];
@@ -370,6 +439,11 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return objects;
         }
 
+        /// <summary>
+        /// Returns the parameters required for the walking behavior FSM state.
+        /// Includes the agent's position, target position, and brain output for the Eat state.
+        /// </summary>
+        /// <returns>An array of objects containing the parameters for the Walk state.</returns>
         protected override object[] WalkTickParameters()
         {
             object[] objects =
@@ -378,6 +452,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return objects;
         }
 
+        /// <summary>
+        /// Defines the FSM transitions for the Eat state, specifying conditions and resulting state changes.
+        /// </summary>
         protected override void EatTransitions()
         {
             Fsm.SetTransition(Behaviours.Eat, Flags.OnEat, Behaviours.Eat);
@@ -386,6 +463,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             Fsm.SetTransition(Behaviours.Eat, Flags.OnEscape, Behaviours.Walk);
         }
 
+        /// <summary>
+        /// Defines the FSM transitions for the Walk state, specifying conditions and resulting state changes.
+        /// </summary>
         protected override void WalkTransitions()
         {
             Fsm.SetTransition(Behaviours.Walk, Flags.OnEat, Behaviours.Eat);

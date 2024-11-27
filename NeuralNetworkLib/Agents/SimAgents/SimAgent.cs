@@ -25,6 +25,18 @@ namespace NeuralNetworkLib.Agents.SimAgents
             Attack
         }
 
+        /// <summary>
+        /// Gets or sets the transform of the agent.
+        /// </summary>
+        /// <value>
+        /// The agent's transform.
+        /// </value>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the value to set the transform is null.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the position of the transform is null.
+        /// </exception>
         public virtual TTransform Transform
         {
             get => transform;
@@ -71,15 +83,25 @@ namespace NeuralNetworkLib.Agents.SimAgents
         public float[][] input;
         public Dictionary<int, BrainType> brainTypes = new Dictionary<int, BrainType>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimAgent"/> class.
+        /// </summary>
         public SimAgent()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimAgent"/> class with a specified agent type.
+        /// </summary>
+        /// <param name="agentType">The type of agent to initialize.</param>
         public SimAgent(SimAgentTypes agentType)
         {
             this.agentType = agentType;
         }
 
+        /// <summary>
+        /// Initializes the agent, setting up the FSM and brain outputs.
+        /// </summary>
         public virtual void Init()
         {
             Food = 0;
@@ -101,6 +123,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             Fsm.ForceTransition(Behaviours.Walk);
         }
 
+        /// <summary>
+        /// Resets the agent's state, setting food to zero and forcing the FSM to transition to the "Walk" state.
+        /// </summary>
         public virtual void Reset()
         {
             Food = 0;
@@ -108,6 +133,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             CalculateInputs();
         }
 
+        /// <summary>
+        /// Calculates the inputs for the agent's brain based on the current agent type and brain types.
+        /// </summary>
         protected void CalculateInputs()
         {
             int brainTypesCount = brainTypes.Count;
@@ -123,18 +151,28 @@ namespace NeuralNetworkLib.Agents.SimAgents
             }
         }
 
+        /// <summary>
+        /// Uninitializes the agent by removing event handlers.
+        /// </summary>
         public virtual void Uninit()
         {
             OnMove -= Move;
             OnEat -= Eat;
         }
 
+        /// <summary>
+        /// Ticks the FSM with the given delta time.
+        /// </summary>
+        /// <param name="deltaTime">The delta time to use for the tick.</param>
         public void Tick(float deltaTime)
         {
             dt = deltaTime;
             Fsm.Tick();
         }
 
+        /// <summary>
+        /// Updates the agent's inputs by finding food, updating movement, and adding extra inputs.
+        /// </summary>
         public virtual void UpdateInputs()
         {
             FindFoodInputs();
@@ -142,7 +180,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             ExtraInputs();
         }
 
-
+        /// <summary>
+        /// Finds food-related inputs for the agent's brain.
+        /// </summary>
         protected void FindFoodInputs()
         {
             int brain = GetBrainTypeKeyByValue(BrainType.Eat);
@@ -164,14 +204,23 @@ namespace NeuralNetworkLib.Agents.SimAgents
             input[brain][3] = target.GetCoordinate().Y;
         }
 
+        /// <summary>
+        /// Handles the movement-related inputs for the agent's brain.
+        /// </summary>
         protected virtual void MovementInputs()
         {
         }
 
+        /// <summary>
+        /// Handles additional inputs for the agent's brain that may be needed.
+        /// </summary>
         protected virtual void ExtraInputs()
         {
         }
 
+        /// <summary>
+        /// Sets up the transitions for the agent's FSM, such as walking and eating transitions.
+        /// </summary>
         protected virtual void FsmTransitions()
         {
             WalkTransitions();
@@ -179,28 +228,47 @@ namespace NeuralNetworkLib.Agents.SimAgents
             ExtraTransitions();
         }
 
+        /// <summary>
+        /// Defines the transitions for the walking state in the FSM.
+        /// </summary>
         protected virtual void WalkTransitions()
         {
         }
 
+        /// <summary>
+        /// Defines the transitions for the eating state in the FSM.
+        /// </summary>
         protected virtual void EatTransitions()
         {
         }
 
+        /// <summary>
+        /// Defines additional transitions for other states in the FSM.
+        /// </summary>
         protected virtual void ExtraTransitions()
         {
         }
 
+        /// <summary>
+        /// Sets up the behaviours for the agent's FSM, such as walking and extra behaviours.
+        /// </summary>
         protected virtual void FsmBehaviours()
         {
             Fsm.AddBehaviour<SimWalkState>(Behaviours.Walk, WalkTickParameters);
             ExtraBehaviours();
         }
 
+        /// <summary>
+        /// Defines extra behaviours for the agent's FSM.
+        /// </summary>
         protected virtual void ExtraBehaviours()
         {
         }
 
+        /// <summary>
+        /// Provides the parameters required for walking state in the FSM.
+        /// </summary>
+        /// <returns>Parameters for the walking state.</returns>
         protected virtual object[] WalkTickParameters()
         {
             int extraBrain = agentType == SimAgentTypes.Carnivore
@@ -213,7 +281,11 @@ namespace NeuralNetworkLib.Agents.SimAgents
             };
             return objects;
         }
-        
+
+        /// <summary>
+        /// Provides the parameters required for eating state in the FSM.
+        /// </summary>
+        /// <returns>Parameters for the eating state.</returns>
         protected virtual object[] EatTickParameters()
         {
             int extraBrain = agentType == SimAgentTypes.Carnivore
@@ -225,6 +297,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return objects;
         }
 
+        /// <summary>
+        /// Handles the agent eating food, updating the food count and the current node type.
+        /// </summary>
         protected virtual void Eat()
         {
             INode<IVector> currNode = CurrentNode;
@@ -237,6 +312,9 @@ namespace NeuralNetworkLib.Agents.SimAgents
             }
         }
 
+        /// <summary>
+        /// Moves the agent based on its brain output and updates its position.
+        /// </summary>
         protected virtual void Move()
         {
             int brain = GetBrainTypeKeyByValue(BrainType.Movement);
@@ -271,6 +349,12 @@ namespace NeuralNetworkLib.Agents.SimAgents
             if (newPos != null) SetPosition(newPos.GetCoordinate());
         }
 
+        /// <summary>
+        /// Calculates the new position of the agent based on the brain output and current position.
+        /// </summary>
+        /// <param name="targetPos">The current position of the agent.</param>
+        /// <param name="brainOutput">The output of the agent's brain that influences movement.</param>
+        /// <returns>The calculated new position.</returns>
         private IVector CalculateNewPosition(IVector targetPos, float[] brainOutput)
         {
             if (brainOutput.Length < 2) return default;
@@ -281,22 +365,46 @@ namespace NeuralNetworkLib.Agents.SimAgents
             return targetPos;
         }
 
+        /// <summary>
+        /// Gets the nearest target node of a specified type.
+        /// </summary>
+        /// <param name="nodeType">The type of node to search for.</param>
+        /// <returns>The nearest target node of the specified type.</returns>
         public virtual INode<IVector> GetTarget(SimNodeType nodeType = SimNodeType.Empty)
         {
             return DataContainer.GetNearestNode(nodeType, transform.position);
         }
 
+        /// <summary>
+        /// Gets the input count for a specified brain type.
+        /// </summary>
+        /// <param name="brainType">The brain type to retrieve input count for.</param>
+        /// <returns>The number of inputs for the specified brain type.</returns>
         protected int GetInputCount(BrainType brainType)
         {
             return InputCountCache.GetInputCount(agentType, brainType);
         }
 
+        /// <summary>
+        /// Sets the position of the agent to the specified position if it is within the graph's borders.
+        /// </summary>
+        /// <param name="position">The new position to set for the agent.</param>
         public virtual void SetPosition(IVector position)
         {
             if (!DataContainer.graph.IsWithinGraphBorders(position)) return;
             Transform = (TTransform)new ITransform<IVector>(position);
         }
 
+        /// <summary>
+        /// Retrieves the key associated with the specified brain type from the brain types dictionary.
+        /// </summary>
+        /// <param name="value">The brain type to find the key for.</param>
+        /// <returns>
+        /// The key corresponding to the specified brain type.
+        /// </returns>
+        /// <exception cref="KeyNotFoundException">
+        /// Thrown when the brain type is not found in the dictionary.
+        /// </exception>
         public int GetBrainTypeKeyByValue(BrainType value)
         {
             foreach (KeyValuePair<int, BrainType> kvp in brainTypes)
