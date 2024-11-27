@@ -21,6 +21,8 @@ namespace NeuralNetworkLib.DataManagement
 
     public static class NeuronDataSystem
     {
+        public static Action<bool>? OnSpecificLoaded;
+
         /// <summary>
         /// Saves the neural network data of agents, grouped by their <see cref="AgentType"/> and <see cref="BrainType"/>, to a directory.
         /// The data is serialized into JSON files, named according to the generation number.
@@ -30,7 +32,10 @@ namespace NeuralNetworkLib.DataManagement
         /// <param name="generation">The generation number used in the file name.</param>
         public static void SaveNeurons(List<AgentNeuronData> agentsData, string directoryPath, int generation)
         {
-            if (agentsData == null) return;
+            if (agentsData == null)
+            {
+                throw new ArgumentNullException(nameof(agentsData), "Agents data cannot be null.");
+            }
 
             var groupedData = agentsData
                 .GroupBy(agent => new { agent.AgentType, agent.BrainType })
@@ -58,7 +63,7 @@ namespace NeuralNetworkLib.DataManagement
         public static Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>?>> LoadLatestNeurons(
             string directoryPath)
         {
-            Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>?>> agentsData = new Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>?>>();
+            Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>?>> agentsData = new();
             string[] agentDirectories = Directory.Exists(directoryPath)
                 ? Directory.GetDirectories(directoryPath)
                 : Array.Empty<string>();
@@ -157,6 +162,11 @@ namespace NeuralNetworkLib.DataManagement
 
                                 return -1;
                             }).First();
+                        OnSpecificLoaded?.Invoke(false);
+                    }
+                    else
+                    {
+                        OnSpecificLoaded?.Invoke(true);
                     }
 
                     var json = File.ReadAllText(targetFile);
