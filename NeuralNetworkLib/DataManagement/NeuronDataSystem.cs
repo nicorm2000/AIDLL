@@ -21,6 +21,13 @@ namespace NeuralNetworkLib.DataManagement
 
     public static class NeuronDataSystem
     {
+        /// <summary>
+        /// Saves the neural network data of agents, grouped by their <see cref="AgentType"/> and <see cref="BrainType"/>, to a directory.
+        /// The data is serialized into JSON files, named according to the generation number.
+        /// </summary>
+        /// <param name="agentsData">The list of agent neural network data to be saved.</param>
+        /// <param name="directoryPath">The directory path where the data should be saved.</param>
+        /// <param name="generation">The generation number used in the file name.</param>
         public static void SaveNeurons(List<AgentNeuronData> agentsData, string directoryPath, int generation)
         {
             if (agentsData == null) return;
@@ -42,6 +49,12 @@ namespace NeuralNetworkLib.DataManagement
             }
         }
 
+        /// <summary>
+        /// Loads the most recent neural network data for each <see cref="SimAgentTypes"/> and <see cref="BrainType"/> from a directory.
+        /// The method retrieves the latest JSON file based on the generation number.
+        /// </summary>
+        /// <param name="directoryPath">The directory path where the data is stored.</param>
+        /// <returns>A dictionary of agent types and their corresponding brain types, with their associated neural network data.</returns>
         public static Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>?>> LoadLatestNeurons(
             string directoryPath)
         {
@@ -93,7 +106,14 @@ namespace NeuralNetworkLib.DataManagement
 
             return agentsData;
         }
-        
+
+        /// <summary>
+        /// Loads the neural network data for a specific generation of agents, grouped by <see cref="SimAgentTypes"/> and <see cref="BrainType"/>, from a directory.
+        /// If the specific generation is not found, it loads the latest available generation data.
+        /// </summary>
+        /// <param name="directoryPath">The directory path where the data is stored.</param>
+        /// <param name="specificGeneration">The specific generation number to load.</param>
+        /// <returns>A dictionary of agent types and their corresponding brain types, with their associated neural network data for the specified generation.</returns>
         public static Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>?>> LoadSpecificNeurons(
             string directoryPath, int specificGeneration)
         {

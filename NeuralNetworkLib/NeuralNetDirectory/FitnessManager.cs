@@ -12,11 +12,18 @@ namespace NeuralNetworkLib.NeuralNetDirectory
     {
         private static Dictionary<uint, SimAgent<TVector, TTransform>> _agents;
 
+        /// <summary>
+        /// Initializes the FitnessManager with a dictionary of agents.
+        /// </summary>
+        /// <param name="agents">A dictionary of agents with their unique IDs.</param>
         public FitnessManager(Dictionary<uint, SimAgent<TVector, TTransform>> agents)
         {
             _agents = agents;
         }
 
+        /// <summary>
+        /// Executes the fitness calculation for each agent on every tick.
+        /// </summary>
         public void Tick()
         {
             foreach (KeyValuePair<uint, SimAgent<TVector, TTransform>> agent in _agents)
@@ -25,6 +32,11 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the fitness of an agent based on its type and ID.
+        /// </summary>
+        /// <param name="agentType">The type of the agent (Carnivore, Herbivore, Scavenger).</param>
+        /// <param name="agentId">The ID of the agent.</param>
         public void CalculateFitness(SimAgentTypes agentType, uint agentId)
         {
             switch (agentType)
@@ -43,6 +55,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the fitness of a herbivore agent based on its current actions.
+        /// </summary>
+        /// <param name="agentId">The ID of the herbivore agent.</param>
         private void HerbivoreFitnessCalculator(uint agentId)
         {
             foreach (KeyValuePair<int, BrainType> brainType in _agents[agentId].brainTypes)
@@ -67,6 +83,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the escape fitness for a herbivore when near a predator.
+        /// </summary>
+        /// <param name="agentId">The ID of the herbivore agent.</param>
         private void HerbivoreEscapeFC(uint agentId)
         {
             const float reward = 10;
@@ -92,6 +112,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the movement fitness for a herbivore agent when avoiding predators.
+        /// </summary>
+        /// <param name="agentId">The ID of the herbivore agent.</param>
         private void HerbivoreMovementFC(uint agentId)
         {
             const float reward = 10;
@@ -114,6 +138,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the fitness of a carnivore agent based on its current actions.
+        /// </summary>
+        /// <param name="agentId">The ID of the carnivore agent.</param>
         private void CarnivoreFitnessCalculator(uint agentId)
         {
             foreach (KeyValuePair<int, BrainType> brainType in _agents[agentId].brainTypes)
@@ -138,7 +166,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
-
+        /// <summary>
+        /// Calculates the attack fitness for a carnivore agent when hunting herbivores.
+        /// </summary>
+        /// <param name="agentId">The ID of the carnivore agent.</param>
         private void CarnivoreAttackFC(uint agentId)
         {
             const float reward = 10;
@@ -166,6 +197,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the movement fitness for a carnivore agent when pursuing prey or corpses.
+        /// </summary>
+        /// <param name="agentId">The ID of the carnivore agent.</param>
         private void CarnivoreMovementFC(uint agentId)
         {
             const float reward = 10;
@@ -196,6 +231,12 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the fitness of an agent based on its brain type. For each agent, it iterates through the brain types 
+        /// and calls the appropriate fitness calculator method, such as <see cref="ScavengerMovementFC"/>, <see cref="EatFitnessCalculator"/>, 
+        /// or <see cref="ScavengerFlockingFC"/>. If an unrecognized brain type is found, it throws an exception.
+        /// </summary>
+        /// <param name="agentId">The ID of the agent whose fitness is being calculated.</param>
         private void ScavengerFitnessCalculator(uint agentId)
         {
             foreach (KeyValuePair<int, BrainType> brainType in _agents[agentId].brainTypes)
@@ -220,7 +261,12 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
-
+        /// <summary>
+        /// Calculates the fitness of a scavenger agent based on its flocking behavior. The method checks if the agent is 
+        /// maintaining a safe distance from other agents, aligning with the flock, and moving towards its target. 
+        /// Rewards or punishes the agent based on its performance in these areas.
+        /// </summary>
+        /// <param name="agentId">The ID of the agent whose flocking fitness is being calculated.</param>
         private void ScavengerFlockingFC(uint agentId)
         {
             const float reward = 10;
@@ -228,7 +274,6 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             const float safeDistance = 0.7f;
 
             Scavenger<TVector, TTransform> agent = (Scavenger<TVector, TTransform>)_agents[agentId];
-            // CHANGE THIS agent.GetTarget(SimNodeType.Carrion).GetCoordinate(); TO TARGET VARIABLE
             IVector targetPosition = agent.target;
 
             bool isMaintainingDistance = true;
@@ -276,6 +321,12 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the fitness of a scavenger agent based on its movement behavior. The agent's fitness is determined by 
+        /// the number of neighboring agents and its ability to move towards specific targets, such as carrion, corpses, or carnivores. 
+        /// Rewards and punishments are applied based on the agent's proximity to these targets and its movement towards them.
+        /// </summary>
+        /// <param name="agentId">The ID of the agent whose movement fitness is being calculated.</param>
         private void ScavengerMovementFC(uint agentId)
         {
             const float reward = 10;
@@ -321,6 +372,12 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             }
         }
 
+        /// <summary>
+        /// Calculates the fitness of a scavenger agent based on its food consumption. If the agent has food, the method 
+        /// rewards the agent based on the amount of food it has relative to its food limit. The reward is proportional to 
+        /// the agent's food intake.
+        /// </summary>
+        /// <param name="agentId">The ID of the agent whose eating fitness is being calculated.</param>
         private void EatFitnessCalculator(uint agentId)
         {
             const float reward = 10;
@@ -334,6 +391,14 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             Reward(ECSManager.GetComponent<NeuralNetComponent>(agentId),reward * rewardMod, BrainType.Eat);
         }
 
+        /// <summary>
+        /// Checks if the agent is moving towards its target. It compares the agent's current direction with the direction 
+        /// towards the target using the dot product. If the agent's direction is sufficiently aligned with the target, it 
+        /// returns <c>true</c>, indicating the agent is moving towards the target.
+        /// </summary>
+        /// <param name="agentId">The ID of the agent to check.</param>
+        /// <param name="targetPosition">The target position the agent is attempting to reach.</param>
+        /// <returns><c>true</c> if the agent is moving towards the target, otherwise <c>false</c>.</returns>
         private bool IsMovingTowardsTarget(uint agentId, IVector targetPosition)
         {
             SimAgent<TVector, TTransform> agent = _agents[agentId];
@@ -348,6 +413,13 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             return dotProduct > 0.9f;
         }
 
+        /// <summary>
+        /// Applies a reward to the agent's fitness score. The method increases the agent's fitness based on the specified 
+        /// reward and updates its fitness modifier.
+        /// </summary>
+        /// <param name="neuralNetComponent">The neural network component of the agent.</param>
+        /// <param name="reward">The reward to be applied.</param>
+        /// <param name="brainType">The brain type of the agent being rewarded.</param>
         private void Reward(NeuralNetComponent neuralNetComponent, float reward, BrainType brainType)
         {
             int id = DataContainer.GetBrainTypeKeyByValue(brainType, neuralNetComponent.Layers[0][0].AgentType);
@@ -355,6 +427,13 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             neuralNetComponent.Fitness[id] += reward * neuralNetComponent.FitnessMod[id];
         }
 
+        /// <summary>
+        /// Applies a punishment to the agent's fitness score. The method decreases the agent's fitness based on the specified 
+        /// punishment and adjusts the fitness modifier accordingly.
+        /// </summary>
+        /// <param name="neuralNetComponent">The neural network component of the agent.</param>
+        /// <param name="punishment">The punishment to be applied.</param>
+        /// <param name="brainType">The brain type of the agent being punished.</param>
         private void Punish(NeuralNetComponent neuralNetComponent, float punishment, BrainType brainType)
         {
             const float mod = 0.9f;
@@ -364,6 +443,12 @@ namespace NeuralNetworkLib.NeuralNetDirectory
             neuralNetComponent.Fitness[id] /= punishment + 0.05f * neuralNetComponent.FitnessMod[id];
         }
 
+        /// <summary>
+        /// Increases the fitness modifier of the agent, ensuring it does not exceed a maximum limit. The method applies a 
+        /// multiplicative factor to the current modifier and clamps it to a maximum value to prevent excessive growth.
+        /// </summary>
+        /// <param name="fitnessMod">The current fitness modifier of the agent.</param>
+        /// <returns>The new fitness modifier after applying the increase.</returns>
         private float IncreaseFitnessMod(float fitnessMod)
         {
             const float maxFitness = 2;
