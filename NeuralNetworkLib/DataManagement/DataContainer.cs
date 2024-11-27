@@ -1,6 +1,7 @@
 ﻿using NeuralNetworkLib.Agents.Flocking;
 using NeuralNetworkLib.Agents.SimAgents;
 using NeuralNetworkLib.Utils;
+using Random = System.Random;
 
 namespace NeuralNetworkLib.DataManagement;
 
@@ -24,6 +25,7 @@ public class DataContainer
     public static Dictionary<int, BrainType> herbBrainTypes = new  Dictionary<int, BrainType>();
     public static Dictionary<int, BrainType> scavBrainTypes = new  Dictionary<int, BrainType>();
     public static Dictionary<int, BrainType> carnBrainTypes = new  Dictionary<int, BrainType>();
+    private static Random random = new();
 
     /// <summary>
     /// Initializes brain type mappings and input counts for various simulation agent types.
@@ -226,5 +228,38 @@ public class DataContainer
 
         throw new KeyNotFoundException(
             $"The value '{value}' is not present in the brainTypes dictionary for agent type '{agentType}'.");
+    }
+
+    /// <summary>
+    /// Gets a random position within the lower quarter of the graph (y-coordinate between 0 and Height/4).
+    /// </summary>
+    /// <returns>A random node located within the lower quarter of the graph.</returns>
+    public static INode<IVector> GetRandomPositionInLowerQuarter()
+    {
+        int x = random.Next(0, graph.MaxX);
+        int y = random.Next(1, graph.MaxY / 4);
+        return DataContainer.graph.NodesType[x, y];
+    }
+
+    /// <summary>
+    /// Gets a random position within the upper quarter of the graph (y-coordinate between 3*Height/4 and Height-1).
+    /// </summary>
+    /// <returns>A random node located within the upper quarter of the graph.</returns>
+    public static INode<IVector> GetRandomPositionInUpperQuarter()
+    {
+        int x = random.Next(0, graph.MaxX);
+        int y = random.Next(3 * graph.MaxY / 4, graph.MaxY - 1);
+        return DataContainer.graph.NodesType[x, y];
+    }
+
+    /// <summary>
+    /// Gets a random position within the entire graph (y-coordinate between 0 and Height).
+    /// </summary>
+    /// <returns>A random node located anywhere in the graph.</returns>
+    public static INode<IVector> GetRandomPosition()
+    {
+        int x = random.Next(0, graph.MaxX);
+        int y = random.Next(0, graph.MaxY);
+        return DataContainer.graph.NodesType[x, y];
     }
 }
