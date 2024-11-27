@@ -2,6 +2,9 @@
 {
     public class Sim2Graph : SimGraph<SimNode<IVector>, SimCoordinate, IVector>
     {
+        /// <summary>
+        /// Defines parallel options for managing the degree of parallelism in the graph's operations.
+        /// </summary>
         private readonly ParallelOptions parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = 32
@@ -12,10 +15,22 @@
         public int MinY => 0;
         public int MaxY => CoordNodes.GetLength(1);
 
+        /// <summary>
+        /// Initializes a new instance of the Sim2Graph class, inheriting properties and behavior from its base class.
+        /// </summary>
+        /// <param name="x">The number of cells along the x-axis.</param>
+        /// <param name="y">The number of cells along the y-axis.</param>
+        /// <param name="cellSize">The size of each cell in the graph.</param>
         public Sim2Graph(int x, int y, float cellSize) : base(x, y, cellSize)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the Sim2Graph class, inheriting properties and behavior from its base class.
+        /// </summary>
+        /// <param name="x">The number of cells along the x-axis.</param>
+        /// <param name="y">The number of cells along the y-axis.</param>
+        /// <param name="cellSize">The size of each cell in the graph.</param>
         public override void CreateGraph(int x, int y, float cellSize)
         {
             CoordNodes = new SimCoordinate[x, y];
@@ -35,6 +50,13 @@
             });
         }
 
+        /// <summary>
+        /// Determines if a given position is within the boundaries of the graph.
+        /// </summary>
+        /// <param name="position">The position to check, represented as an <see cref="IVector"/>.</param>
+        /// <returns>
+        /// True if the position is within the graph's borders; otherwise, false.
+        /// </returns>
         public bool IsWithinGraphBorders(IVector position)
         {
             return position.X >= MinX && position.X <= MaxX - 1 &&

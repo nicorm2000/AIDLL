@@ -10,10 +10,22 @@
         public static float CellSize;
         public TCoordinateNode[,] CoordNodes;
         public readonly TNodeType[,] NodesType;
+
+        /// <summary>
+        /// Defines parallel options for managing the degree of parallelism in the graph's operations.
+        /// </summary>
         private ParallelOptions parallelOptions = new ParallelOptions()
         {
             MaxDegreeOfParallelism = 32
         };
+
+        /// <summary>
+        /// Initializes a new instance of the SimGraph class.
+        /// Sets the map dimensions, cell size, and creates the graph structure based on the provided dimensions.
+        /// </summary>
+        /// <param name="x">The number of cells along the x-axis.</param>
+        /// <param name="y">The number of cells along the y-axis.</param>
+        /// <param name="cellSize">The size of each cell in the graph.</param>
         public SimGraph(int x, int y, float cellSize)
         {
             MapDimensions = new TCoordinateNode();
@@ -28,8 +40,20 @@
             //AddNeighbors(cellSize);
         }
 
+        /// <summary>
+        /// Abstract method to create the graph structure based on the specified dimensions and cell size.
+        /// Implementations must define how nodes are initialized and configured.
+        /// </summary>
+        /// <param name="x">The number of cells along the x-axis.</param>
+        /// <param name="y">The number of cells along the y-axis.</param>
+        /// <param name="cellSize">The size of each cell in the graph.</param>
         public abstract void CreateGraph(int x, int y, float cellSize);
 
+        /// <summary>
+        /// Assigns neighbors to each node in the graph based on proximity.
+        /// Uses parallel processing to efficiently determine neighboring nodes.
+        /// </summary>
+        /// <param name="cellSize">The size of each cell, used to calculate proximity.</param>
         private void AddNeighbors(float cellSize)
         {
             List<INode<TCoordinateType>> neighbors = new List<INode<TCoordinateType>>();
@@ -61,6 +85,12 @@
             });
         }
 
+        /// <summary>
+        /// Compares two floating-point numbers to determine if they are approximately equal.
+        /// </summary>
+        /// <param name="a">The first floating-point number.</param>
+        /// <param name="b">The second floating-point number.</param>
+        /// <returns>True if the numbers are approximately equal; otherwise, false.</returns>
         public bool Approximately(float a, float b)
         {
             return Math.Abs(a - b) < 1e-6f;

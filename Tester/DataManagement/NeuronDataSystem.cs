@@ -21,6 +21,15 @@ namespace Tester.DataManagement
     
     public static class NeuronDataSystem
     {
+        /// <summary>
+        /// Saves the provided neuron data to JSON files, organized by agent type and brain type.
+        /// - Creates a directory structure based on agent types.
+        /// - Groups data by agent type and brain type, and saves each group to a separate JSON file.
+        /// - File names include the generation number for versioning.
+        /// </summary>
+        /// <param name="agentsData">The list of agent neuron data to save.</param>
+        /// <param name="directoryPath">The base directory path for saving the data.</param>
+        /// <param name="generation">The generation number for naming files.</param>
         public static void SaveNeurons(List<AgentNeuronData> agentsData, string directoryPath, int generation)
         {
             var groupedData = agentsData
@@ -40,7 +49,19 @@ namespace Tester.DataManagement
 
             }
         }
-        
+
+        /// <summary>
+        /// Loads the most recent neuron data from JSON files, organized by agent type and brain type.
+        /// - Searches for directories and files matching the naming conventions.
+        /// - Identifies the latest generation file for each agent and brain type.
+        /// - Deserializes the JSON content into structured data.
+        /// </summary>
+        /// <param name="directoryPath">The base directory path to load the data from.</param>
+        /// <returns>
+        /// A nested dictionary where the first key is the agent type, 
+        /// the second key is the brain type, 
+        /// and the value is a list of agent neuron data.
+        /// </returns>
         public static Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>>> LoadLatestNeurons(string directoryPath)
         {
             Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>>> agentsData = new Dictionary<SimAgentTypes, Dictionary<BrainType, List<AgentNeuronData>>>();

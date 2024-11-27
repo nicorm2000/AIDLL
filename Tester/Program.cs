@@ -5,6 +5,19 @@ namespace Tester
 {
     class Program
     {
+        /// <summary>
+        /// The Main entry point for the application, demonstrating the usage of the NeuronDataSystem.
+        /// 
+        /// - Initializes test data for a collection of agents with different characteristics.
+        /// - Saves the neuron data to a specified directory and generation using `NeuronDataSystem.SaveNeurons`.
+        /// - Loads the latest saved neuron data using `NeuronDataSystem.LoadLatestNeurons`.
+        /// - Displays the loaded data in a structured format, categorized by agent types and brain types.
+        /// 
+        /// Includes functionality for:
+        /// - Saving neuron data.
+        /// - Loading neuron data.
+        /// - Visualizing neuron data for debugging or analysis purposes.
+        /// </summary>
         static void Main(string[] args)
         {
             string directoryPath = "NeuronData";
@@ -76,8 +89,7 @@ namespace Tester
                     BrainType = BrainType.Eat,
                     NeuronWeights = new List<float[]> { new float[] { 0.9f, 1.0f }, new float[] { 1.1f, 1.2f } }
                 }
-            };
-            
+            };   
 
             // Save the data
             NeuronDataSystem.SaveNeurons(agentsData, directoryPath, generation);
