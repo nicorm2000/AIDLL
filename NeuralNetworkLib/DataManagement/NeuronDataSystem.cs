@@ -23,6 +23,8 @@ namespace NeuralNetworkLib.DataManagement
     {
         public static void SaveNeurons(List<AgentNeuronData> agentsData, string directoryPath, int generation)
         {
+            if (agentsData == null) return;
+
             var groupedData = agentsData
                 .GroupBy(agent => new { agent.AgentType, agent.BrainType })
                 .ToDictionary(group => group.Key, group => group.ToList());
