@@ -5,6 +5,11 @@ namespace NeuralNetworkLib.Agents.States
 {
     public class SimWalkState : State
     {
+        /// <summary>
+        /// Gets the tick behaviour for the state, performs actions based on parameters.
+        /// </summary>
+        /// <param name="parameters">The parameters needed to determine the tick behaviour.</param>
+        /// <returns>Returns a BehaviourActions instance that represents the actions for the current tick.</returns>
         public override BehaviourActions GetTickBehaviour(params object[] parameters)
         {
             BehaviourActions behaviours = new BehaviourActions();
@@ -30,15 +35,29 @@ namespace NeuralNetworkLib.Agents.States
             return behaviours;
         }
 
+        /// <summary>
+        /// Placeholder method for special actions, meant to be overridden in derived classes.
+        /// </summary>
+        /// <param name="outputs">The outputs to process for custom actions.</param>
         protected virtual void SpecialAction(float[] outputs)
         {
         }
 
+        /// <summary>
+        /// Returns the on-enter behaviour for the state.
+        /// </summary>
+        /// <param name="parameters">The parameters needed to determine the on-enter behaviour.</param>
+        /// <returns>Returns the on-enter behaviour actions (currently default).</returns>
         public override BehaviourActions GetOnEnterBehaviour(params object[] parameters)
         {
             return default;
         }
 
+        /// <summary>
+        /// Returns the on-exit behaviour for the state.
+        /// </summary>
+        /// <param name="parameters">The parameters needed to determine the on-exit behaviour.</param>
+        /// <returns>Returns the on-exit behaviour actions (currently default).</returns>
         public override BehaviourActions GetOnExitBehaviour(params object[] parameters)
         {
             return default;
@@ -47,6 +66,10 @@ namespace NeuralNetworkLib.Agents.States
 
     public class SimWalkScavState : SimWalkState
     {
+        /// Gets the tick behaviour for the state, determines actions based on position and food proximity.
+        /// </summary>
+        /// <param name="parameters">The parameters needed to determine the tick behaviour.</param>
+        /// <returns>Returns a BehaviourActions instance representing the actions for the current tick.</returns>
         public override BehaviourActions GetTickBehaviour(params object[] parameters)
         {
             BehaviourActions behaviours = new BehaviourActions();
@@ -80,6 +103,11 @@ namespace NeuralNetworkLib.Agents.States
 
     public class SimWalkHerbState : State
     {
+        /// <summary>
+        /// Gets the tick behaviour for the state, determines actions based on current node and food target.
+        /// </summary>
+        /// <param name="parameters">The parameters needed to determine the tick behaviour.</param>
+        /// <returns>Returns a BehaviourActions instance representing the actions for the current tick.</returns>
         public override BehaviourActions GetTickBehaviour(params object[] parameters)
         {
             BehaviourActions behaviours = new BehaviourActions();
@@ -110,11 +138,21 @@ namespace NeuralNetworkLib.Agents.States
             return behaviours;
         }
 
+        /// <summary>
+        /// Returns the on-enter behaviour for the state. Currently returns the default behaviour actions.
+        /// </summary>
+        /// <param name="parameters">The parameters needed to determine the on-enter behaviour.</param>
+        /// <returns>Returns the on-enter behaviour actions (currently default).</returns>
         public override BehaviourActions GetOnEnterBehaviour(params object[] parameters)
         {
             return default;
         }
 
+        /// <summary>
+        /// Returns the on-exit behaviour for the state. Currently returns the default behaviour actions.
+        /// </summary>
+        /// <param name="parameters">The parameters needed to determine the on-exit behaviour.</param>
+        /// <returns>Returns the on-exit behaviour actions (currently default).</returns>
         public override BehaviourActions GetOnExitBehaviour(params object[] parameters)
         {
             return default;
