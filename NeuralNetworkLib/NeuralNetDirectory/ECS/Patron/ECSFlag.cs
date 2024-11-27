@@ -13,6 +13,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory.ECS.Patron
 
     public class ECSFlag
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ECSFlag"/> class with a specified flag type.
+        /// </summary>
+        /// <param name="flagType">The type of the flag to be assigned.</param>
         protected ECSFlag(FlagType flagType)
         {
             Flag = flagType;
@@ -22,6 +26,9 @@ namespace NeuralNetworkLib.NeuralNetDirectory.ECS.Patron
 
         public FlagType Flag { get; set; }
 
+        /// <summary>
+        /// Releases the resources used by the current object.
+        /// </summary>
         public virtual void Dispose()
         {
         }

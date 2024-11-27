@@ -11,11 +11,17 @@ namespace NeuralNetworkLib.NeuralNetDirectory.ECS
         private IDictionary<uint, InputComponent> inputComponents;
         private IEnumerable<uint> queriedEntities;
 
+        /// <summary>
+        /// Initializes the system, setting the maximum degree of parallelism for processing.
+        /// </summary>
         public override void Initialize()
         {
             parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 32 };
         }
 
+        /// <summary>
+        /// Deinitializes the system, clearing references to neural network components, output components, input components, and queried entities.
+        /// </summary>
         public override void Deinitialize()
         {
             neuralNetworkComponents = null;
@@ -24,6 +30,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory.ECS
             queriedEntities = null;
         }
 
+        /// <summary>
+        /// Prepares the system for execution by retrieving necessary components and entities from the ECS manager.
+        /// </summary>
+        /// <param name="deltaTime">The time elapsed since the last frame or tick.</param>
         protected override void PreExecute(float deltaTime)
         {
             neuralNetworkComponents ??= ECSManager.GetComponents<NeuralNetComponent>();
@@ -33,6 +43,10 @@ namespace NeuralNetworkLib.NeuralNetDirectory.ECS
                 typeof(NeuralNetComponent), typeof(OutputComponent), typeof(InputComponent));
         }
 
+        /// <summary>
+        /// Executes the system's logic in parallel, processing each queried entity's neural network components, input components, and calculating the outputs.
+        /// </summary>
+        /// <param name="deltaTime">The time elapsed since the last frame or tick.</param>
         protected override void Execute(float deltaTime)
         {
             const int MaxBrains = 3;
@@ -56,10 +70,20 @@ namespace NeuralNetworkLib.NeuralNetDirectory.ECS
             });
         }
 
+        /// <summary>
+        /// Post-execution method, called after the main execution logic. Currently does not perform any actions.
+        /// </summary>
+        /// <param name="deltaTime">The time elapsed since the last frame or tick.</param>
         protected override void PostExecute(float deltaTime)
         {
         }
 
+        /// <summary>
+        /// Computes the outputs of a neural network layer by applying the synapse function (weighted sum and bias) to the inputs, followed by the Tanh activation function.
+        /// </summary>
+        /// <param name="layer">The neural network layer to compute outputs for.</param>
+        /// <param name="inputs">The inputs to the layer.</param>
+        /// <returns>The computed outputs for the layer.</returns>
         private float[] Synapsis(NeuronLayer layer, float[] inputs)
         {
             float[] outputs = new float[(int)layer.NeuronsCount];
